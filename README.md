@@ -1,5 +1,5 @@
 # SpeakerRecognition
-Recognize the speaker based on speech analysis.
+This repository allows you to identify the interlocutor based on the analysis of his voice.
 
 For reasons of space, I didn't load  the dataset has not been loaded on Github. Below is the tree of all the files:
 ```bash
@@ -42,8 +42,26 @@ For reasons of space, I didn't load  the dataset has not been loaded on Github. 
         ├── saved_model.pb
         └── variables
 ```
-The Speaker recognition file is the notebook containing the code for training the neural network.
-The file has the task of saving the model in the /saved_model/my_model folder, the encoder of the labels corresponding to the speakers and the dataframe which corresponds to the features extracted for each audio file contained in the dataset folder.
-The StandardScaler.pkl, dataframe.pkl and LabelEncoder.pkl files are registered by the Speaker Recognition notebook for use within the RealTime Eval notebook.
+The Speaker recognition file is the notebook contains the code to train the neural network. \
+In Speaker Recognition.ipynb notebook we: 
+1. load the DataSet folder reducing the speaker number from 8072 to 60 (for computational reason) 
+2. extract features from any files in the reduced dataset
+3. save the resulted dataframe (since the features' extraction is time consuming)
+3. scale the measures (we save the scaler to use it in RealTimeEval.ipynb file)
+4. train the dense neural network 
+5. save the model
+
+Without going into too much detail, the latest model obtained the following results:
+- Model Accuracy: 0.9983484723369116
+- MSE: 0.7241948802642444
+
+RealTimeEval.ipynb file continuously evaluates the microphone audio signal to detect which person is actually speaking.
+Without going into the details of the code, the important parameters are as follows:
+- Sec: This variable defines the time window to be analyzed
+- Interval: This variable defines how often to evaluate the current time window.
+
+For example for Sec=3 and Interval=0.5 mean that we carry out an evaluation any 0.5 seconds of the time window of the previous 3 seconds at the time of evaluation.
+
+The last notebook Record.ipynb, instead, it is used to register a new speaker to be included in our dataset. 
 
 
