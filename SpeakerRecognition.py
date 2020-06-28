@@ -9,10 +9,10 @@ import tensorflow as tf
 
 
 class SpeakerRecognition:
-    def __init__(self):
+    def __init__(self, path2files, path2spklabel):
         self.label_encoder = None
-        self.path2files = 'D:/PycharmProjects/dataset/train-clean-100'
-        self.path2spklabel = 'D:/PycharmProjects/dataset/SPEAKERS.TXT'
+        self.path2files = path2files
+        self.path2spklabel = path2spklabel
         self.df = None
         self.loaded_df = None
         self.num_speakers = None
@@ -81,9 +81,9 @@ class SpeakerRecognition:
         self.trainer.save_model()
         self.model = self.trainer.get_model()
 
-    def test_model_from_file(self):
+    def test_model_from_file(self, file_name, speaker, subfolder):
         # Test the model
-        data = {"files": "19-198-0002.flac", "speaker": "19", 'subfolder': "198"}
+        data = {"files": file_name, "speaker": speaker, 'subfolder': subfolder}
         test = pd.DataFrame(data=data, index=[0])
         ft = FeatureExtractor(self.path2files, 0)
         features_label_test = test.apply(ft.extract_features, axis=1)
@@ -91,7 +91,6 @@ class SpeakerRecognition:
                                          features_label_test.iloc[0][2], features_label_test.iloc[0][3],
                                          features_label_test.iloc[0][4]), axis=0)]
         test = np.array(features_test)
-        # print(test)
         if self.loaded_ss is None:
             self.load_standard_scaler('')
         if self.loaded_lb is None:
@@ -99,7 +98,5 @@ class SpeakerRecognition:
         if self.model is None:
             self.load_model()
         test = self.loaded_ss.transform(test)
-        # test_pred = self.model.predict_proba(test)
         test_pred = self.model.predict_classes(test)
-        print(self.loaded_lb.inverse_transform(test_pred))
-        print(test_pred)
+        print('[SpeakerRecognition] test identification:'+self.loaded_lb.inverse_transform(test_pred)[0])

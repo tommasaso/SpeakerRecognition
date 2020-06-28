@@ -16,19 +16,18 @@ class FeatureExtractor:
         self.contrast = None
         self.tonnetz = None
 
-    def extract_features(self, files):
+    def extract_features(self, files, fullPath=""):
         self.sample = self.sample + 1
-        print("Sample: " + str(self.sample))
         # Sets the name to be the path to where the file is in my computer
-        # file_name = os.path.join(os.path.abspath(self.path2files), str(files.speaker))
-        # file_name2 = os.path.join(file_name, str(files.speaker))
-        # file_name3 = os.path.join(file_name2, str(files.subfolder))
-        # file_name4 = os.path.join(file_name3, str(files.files))
-        file_name = os.path.join(
-            os.path.abspath(self.path2files) + '/' + str(files.speaker) + '/' + str(
-                files.subfolder) + '/' + str(
-                files.files))
-        print('filename ', file_name)
+        if files != None and fullPath != "":
+            file_name = os.path.join(
+                os.path.abspath(self.path2files) + '/' + str(files.speaker) + '/' + str(
+                    files.subfolder) + '/' + str(
+                    files.files))
+        else:
+            file_name = fullPath
+
+        print('[Feature extraction] sample_number: '+ str(self.sample) +' - filename: ', file_name)
         # Loads the audio file as a floating point time series - default sample rate is set to 22050 by default
         X, sample_rate = librosa.load(file_name, res_type='kaiser_fast')
         X, index = librosa.effects.trim(y=X, top_db=40)

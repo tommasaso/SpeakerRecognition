@@ -18,6 +18,7 @@ class DataFormat:
         self.path2files = path2files  # '/Users/tommasaso/Applications/AI/SpeakerRecognition/DataSet/train-other-500'
         self.path2spklabel = path2spklabel  # '/Users/tommasaso/Applications/AI/SpeakerRecognition/DataSet/SPEAKERS.TXT'
         self.speakers = None
+        self.traindDataset = 'train-other-500'
 
     # Load Files from dataset
     def load_files(self):
@@ -32,7 +33,7 @@ class DataFormat:
             subfolder.append(self.df['files'][i].split('-')[1])
         self.df['speaker'] = speaker
         self.df['subfolder'] = subfolder
-        # df.head()
+        print(self.df.head())
 
     def add_speaker_label(self):
         print('[FormatData] add speaker label...')
@@ -43,12 +44,16 @@ class DataFormat:
         self.data[['speaker']] = self.data[['speaker']].applymap(np.int64)
 
     def fn(self, row):
-        return self.data[(self.data['speaker'] == int(row['speaker'])) & (
-            self.data.dataset.str.contains('train-clean-100', case=False))].speaker_name.values[0]
+        try:
+            return self.data[(self.data['speaker'] == int(row['speaker'])) & (
+                self.data.dataset.str.contains(self.traindDataset, case=False))].speaker_name.values[0]
+        except:
+            return None
 
     def add_speaker_column(self):
         print('[FormatData] add speaker column...')
         self.df['speaker_name'] = self.df.apply(self.fn, axis=1)
+        self.df.dropna(subset = ['speaker_name'], inplace=True)
 
     def reduce_dataset(self):
         print('[FormatData] reduce dataset...')
@@ -57,8 +62,9 @@ class DataFormat:
         self.df = shuffle(self.df)
         self.speakers = self.df['speaker'].unique()
         self.speakers = self.speakers[:round(self.df['speaker'].nunique() / 20)]
+        print(self.speakers)
         if not ('0' in self.speakers):
-            speakers = np.append(self.speakers, '0')
+            self.speakers = np.append(self.speakers, '0')
         if not ('1' in self.speakers):
             self.speakers = np.append(self.speakers, '1')
         self.df_reduced = self.df[self.df['speaker'].isin(self.speakers)]
@@ -91,6 +97,7 @@ class DataFormat:
         # print(features)
 
         features_data = np.array(features)
+        print(features_data)
         for i in range(0, len(features[0])):
             self.df_reduced['feature_' + str(i)] = features_data[:, i]
 
